@@ -1,0 +1,3050 @@
+openapi: 3.0.3
+info:
+  title: Keygen.sh - OpenAPI 3.0
+  description: |-
+    The Keygen API is organized around [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) principles. All requests **must** be made over TLS/SSL. We only support **TLS 1.2**, for security reasons. All API request and response bodies, including errors, are encoded in **JSON** format.
+
+    The API has predictable, resource-oriented URLs, and uses standard HTTP response codes to indicate API errors. We use built-in HTTP features, like authentication and HTTP verbs, which are understood by off-the-shelf HTTP clients. We support cross-origin resource sharing, allowing you to interact securely with our API from any client-facing software application.
+  termsOfService: https://keygen.sh/terms/
+  contact:
+    email: hello@keygen.sh
+  license:
+    name: Elastic License 2.0
+    url: https://www.elastic.co/licensing/elastic-license
+  version: 1.0.0
+externalDocs:
+  description: Documentation about Keygen.sh
+  url: https://keygen.sh/docs
+servers:
+  - url: https://api.keygen.sh
+tags:
+  - name: API Tokens
+    description: Manage API Tokens
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/tokens
+  - name: Products
+    description: Manage Products
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/products
+  - name: Users
+    description: Manage Users
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/users
+  - name: Groups
+    description: Manage Groups
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/groups
+  - name: Policies
+    description: Manage Policies
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/policies
+  - name: Licenses
+    description: Manage Licenses
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/licenses
+  - name: Licenses (Actions)
+    description: Perform specific actions on licenses
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/licenses/#licenses-actions
+  - name: Machines
+    description: Manage registered machines
+    externalDocs:
+      description: Find out more
+      url: https://keygen.sh/docs/api/machines
+
+paths:
+  /v1/accounts/{account}/tokens:
+    get:
+      tags:
+        - API Tokens
+      summary: List all tokens
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+              number:
+                type: integer
+                minimum: 1
+                maximum: 100
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  - id: 6a7562be-b302-43d2-a550-30d6026247aa
+                    type: tokens
+                    attributes:
+                      kind: admin-token
+                      expiry: '2022-03-15T19:27:50.440Z'
+                      created: '2017-01-02T20:26:53.464Z'
+                      updated: '2017-01-02T20:26:53.464Z'
+                    relationships:
+                      account:
+                        links:
+                          related: /v1/accounts/<account>
+                        data:
+                          type: accounts
+                          id: <account>
+                      bearer:
+                        links:
+                          related: /v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                        data:
+                          type: users
+                          id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+    post:
+      tags:
+        - API Tokens
+      summary: Generate a new token
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      security:
+        - BasicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [tokens]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        expiry:
+                          type: string
+                          format: date-time
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 6a7562be-b302-43d2-a550-30d6026247aa
+                  type: tokens
+                  attributes:
+                    kind: user-token
+                    token: user-f4869386e3b6b39d1f42949131f97a39b42f9a74c553ba7244bbed9d1f79f106v3
+                    expiry: '2022-03-15T19:27:50.440Z'
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    bearer:
+                      links:
+                        related: /v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                      data:
+                        type: users
+                        id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+  /v1/accounts/{account}/tokens/{token_id}:
+    get:
+      tags:
+        - API Tokens
+      summary: Retrieve a token
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: token_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 6a7562be-b302-43d2-a550-30d6026247aa
+                  type: tokens
+                  attributes:
+                    kind: admin-token
+                    expiry: '2022-03-15T19:27:50.440Z'
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    bearer:
+                      links:
+                        related: /v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                      data:
+                        type: users
+                        id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+    put:
+      tags:
+        - API Tokens
+      summary: Regenerate a token
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: token_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    attributes:
+                      type: object
+                      properties:
+                        kind:
+                          type: string
+                        token:
+                          type: string
+                        expiry:
+                          type: string
+                          format: date-time
+                    relationships:
+                      type: object
+                      properties:
+                        account:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                id:
+                                  type: string
+                        bearer:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                id:
+                                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 6a7562be-b302-43d2-a550-30d6026247aa
+                  type: tokens
+                  attributes:
+                    kind: user-token
+                    token: user-72abcf7e9bce107df746fab6751f875aad7801d8edc7b9b9afb2f97ee53b59e7v3
+                    expiry: '2022-03-15T19:27:50.440Z'
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    bearer:
+                      links:
+                        related: /v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                      data:
+                        type: users
+                        id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+    delete:
+      tags:
+        - API Tokens
+      summary: Delete a specific token
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: token_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: No Content
+  /v1/accounts/{account}/products:
+    get:
+      tags:
+        - Products
+      summary: List all products
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+              number:
+                type: integer
+                minimum: 1
+                maximum: 100
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  - id: 31339351-f7f5-4bdd-8346-5d8399a1ac07
+                    type: products
+                    links:
+                      self: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07
+                    attributes:
+                      name: Example App
+                      distributionStrategy: OPEN
+                      url: https://example.com
+                      platforms: []
+                      metadata: {}
+                      created: '2017-01-02T20:26:53.464Z'
+                      updated: '2017-01-02T20:26:53.464Z'
+                    relationships:
+                      account:
+                        links:
+                          related: /v1/accounts/<account>
+                        data:
+                          type: accounts
+                          id: <account>
+                      policies:
+                        links:
+                          related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/policies
+                      licenses:
+                        links:
+                          related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/licenses
+                      machines:
+                        links:
+                          related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/machines
+                      users:
+                        links:
+                          related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/users
+                      tokens:
+                        links:
+                          related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/tokens
+    post:
+      tags:
+        - Products
+      summary: Create a new product
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [products]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        url:
+                          type: string
+                          default: ""
+                        distributionStrategy:
+                          type: string
+                          default: "LICENSED"
+                        platforms:
+                          type: array
+                          items:
+                            type: string
+                            default: ""
+                        metadata:
+                          type: object
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  type: products
+                  links:
+                    self: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  attributes:
+                    name: Example On-Premise
+                    distributionStrategy: LICENSED
+                    url: https://example.com
+                    platforms: [linux]
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    policies:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/policies
+                    licenses:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/licenses
+                    machines:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/machines
+                    users:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/users
+                    tokens:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/tokens
+  /v1/accounts/{account}/products/{product_id}:
+    get:
+      tags:
+        - Products
+      summary: Retrieve a product
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  type: products
+                  links:
+                    self: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  attributes:
+                    name: Example App
+                    distributionStrategy: OPEN
+                    url: https://example.com
+                    platforms: []
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    policies:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/policies
+                    licenses:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/licenses
+                    machines:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/machines
+                    users:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/users
+                    tokens:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/tokens
+    patch:
+      tags:
+        - Products
+      summary: Update a product
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [products]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        url:
+                          type: string
+                          default: ""
+                        distributionStrategy:
+                          type: string
+                          default: "LICENSED"
+                        platforms:
+                          type: array
+                          items:
+                            type: string
+                            default: ""
+                        metadata:
+                          type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  type: products
+                  links:
+                    self: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07
+                  attributes:
+                    name: Example App
+                    distributionStrategy: OPEN
+                    url: https://example.com
+                    platforms: []
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    policies:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/policies
+                    licenses:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/licenses
+                    machines:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/machines
+                    users:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/users
+                    tokens:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07/tokens
+    delete:
+      tags:
+        - Products
+      summary: Delete a product
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: No Content
+    post:
+      tags:
+        - Products
+      summary: Product tokens
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [tokens]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        expiry:
+                          type: string
+                          format: date-time
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 07d52aa8-b96c-4b55-b05d-f5f570e1775a
+                  type: tokens
+                  attributes:
+                    kind: product-token
+                    token: prod-2ddd064509b6bcaa356958dcce6da3a538919e13ddbc26b359fb374ff89dfacav3
+                    expiry: '2022-03-15T19:27:50.440Z'
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    bearer:
+                      links:
+                        related: /v1/accounts/<account>/products/31339351-f7f5-4bdd-8346-5d8399a1ac07
+                      data:
+                        type: products
+                        id: 31339351-f7f5-4bdd-8346-5d8399a1ac07
+  /v1/accounts/{account}/users:
+    get:
+      summary: Get a list of users
+      tags:
+        - Users
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, BANNED]
+        - name: assigned
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: roles
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "user"
+        - name: metadata
+          in: query
+          required: false
+          schema:
+            type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                data:
+                  - id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                    type: users
+                    attributes:
+                      fullName: John Doe
+                      firstName: John
+                      lastName: Doe
+                      email: jdoe@keygen.sh
+                      status: ACTIVE
+                      role: user
+                      metadata: {}
+                      created: '2017-01-02T20:26:53.464Z'
+                      updated: '2017-01-02T20:26:53.464Z'
+                    relationships:
+                      account:
+                        links:
+                          related: '/v1/accounts/<account>'
+                        data:
+                          type: accounts
+                          id: '<account>'
+                      group:
+                        links:
+                          related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/group'
+                        data: null
+                      products:
+                        links:
+                          related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/products'
+                      licenses:
+                        links:
+                          related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/licenses'
+                      machines:
+                        links:
+                          related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/machines'
+                      tokens:
+                        links:
+                          related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/tokens'
+      security:
+        - BearerAuth: []
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [users]
+                    attributes:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          default: ""
+                        lastName:
+                          type: string
+                          default: ""
+                        email:
+                          type: string
+                          format: email
+                          default: ""
+                        password:
+                          type: string
+                          default: ""
+                        role:
+                          type: string
+                          default: ""
+                        permissions:
+                          type: string
+                          format: array
+                          default: ""
+                        metadata:
+                          type: object
+                    relationships:
+                      type: object
+                      properties:
+                        group:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum: [groups]
+                                id:
+                                  type: string
+                                  default: ""
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              example:
+                data:
+                  id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                  type: users
+                  attributes:
+                    fullName: John Doe
+                    firstName: John
+                    lastName: Doe
+                    email: jdoe@keygen.sh
+                    status: ACTIVE
+                    role: user
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: '/v1/accounts/<account>'
+                      data:
+                        type: accounts
+                        id: '<account>'
+                    group:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/group'
+                      data: null
+                    products:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/products'
+                    licenses:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/licenses'
+                    machines:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/machines'
+                    tokens:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/tokens'
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/users/{user_id}:
+    get:
+      summary: Get user details
+      tags:
+        - Users
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                data:
+                  id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                  type: users
+                  attributes:
+                    fullName: John Doe
+                    firstName: John
+                    lastName: Doe
+                    email: jdoe@keygen.sh
+                    status: ACTIVE
+                    role: user
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: '/v1/accounts/<account>'
+                      data:
+                        type: accounts
+                        id: '<account>'
+                    group:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/group'
+                      data: null
+                    products:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/products'
+                    licenses:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/licenses'
+                    machines:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/machines'
+                    tokens:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/tokens'
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Update user details
+      tags:
+        - Users
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [users]
+                    attributes:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          default: ""
+                        lastName:
+                          type: string
+                          default: ""
+                        email:
+                          type: string
+                          format: email
+                          default: ""
+                        role:
+                          type: string
+                          default: ""
+                        permissions:
+                          type: string
+                          format: array
+                          default: ""
+                        metadata:
+                          type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                data:
+                  id: a5a154d2-f026-40fa-bc8d-a7e3ca415298
+                  type: users
+                  attributes:
+                    fullName: John Doe
+                    firstName: John
+                    lastName: Doe
+                    email: jdoe@keygen.sh
+                    status: ACTIVE
+                    role: user
+                    metadata:
+                      nickname: Jack
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: '/v1/accounts/<account>'
+                      data:
+                        type: accounts
+                        id: '<account>'
+                    group:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/group'
+                      data: null
+                    products:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/products'
+                    licenses:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/licenses'
+                    machines:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/machines'
+                    tokens:
+                      links:
+                        related: '/v1/accounts/<account>/users/a5a154d2-f026-40fa-bc8d-a7e3ca415298/tokens'
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete user
+      tags:
+        - Users
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/groups:
+    get:
+      tags:
+        - Groups
+      summary: List all groups
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+              number:
+                type: integer
+                minimum: 1
+                maximum: 100
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  - id: db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+                    type: groups
+                    attributes:
+                      name: Example Group
+                      maxUsers: null
+                      maxLicenses: null
+                      maxMachines: null
+                      metadata: {}
+                      created: '2022-03-07T14:13:02.959Z'
+                      updated: '2022-03-07T14:13:02.959Z'
+                    relationships:
+                      account:
+                        links:
+                          related: /v1/accounts/<account>
+                        data:
+                          type: accounts
+                          id: <account>
+                      owners:
+                        links:
+                          related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/owners
+                      users:
+                        links:
+                          related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/users
+                      licenses:
+                        links:
+                          related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/licenses
+                      machines:
+                        links:
+                          related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/machines
+                    links:
+                      self: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+    post:
+      tags:
+        - Groups
+      summary: Create a group
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [groups]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        maxUsers:
+                          type: integer
+                        maxLicenses:
+                          type: integer
+                        maxMachines:
+                          type: integer
+                        metadata:
+                          type: object
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+                  type: groups
+                  attributes:
+                    name: Example Group
+                    maxUsers: null
+                    maxLicenses: null
+                    maxMachines: null
+                    metadata: {}
+                    created: '2022-03-07T14:13:02.959Z'
+                    updated: '2022-03-07T14:13:02.959Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    owners:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/owners
+                    users:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/users
+                    licenses:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/licenses
+                    machines:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/machines
+                  links:
+                    self: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+  /v1/accounts/{account}/groups/{groupId}:
+    get:
+      tags:
+        - Groups
+      summary: Retrieve a group
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+                  type: groups
+                  attributes:
+                    name: Example Group
+                    maxUsers: null
+                    maxLicenses: null
+                    maxMachines: null
+                    metadata: {}
+                    created: '2022-03-07T14:13:02.959Z'
+                    updated: '2022-03-07T14:13:02.959Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                    owners:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/owners
+                    users:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/users
+                    licenses:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/licenses
+                    machines:
+                      links:
+                        related: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d/machines
+                  links:
+                    self: /v1/accounts/<account>/groups/db7e99e1-dd6d-447b-98e8-ceb354d9d85d
+    patch:
+      tags:
+        - Groups
+      summary: Update a group
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [groups]
+                    attributes:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          default: ""
+                        maxUsers:
+                          type: integer
+                        maxLicenses:
+                          type: integer
+                        maxMachines:
+                          type: integer
+                        metadata:
+                          type: object
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: db1ff21b-f42f-4623-952b-ca7f2600bded
+                  type: groups
+                  attributes:
+                    name: Example Feature
+                    code: EXAMPLE_ENTITLEMENT_CODE
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/<account>
+                      data:
+                        type: accounts
+                        id: <account>
+                  links:
+                    self: /v1/accounts/<account>/groups/db1ff21b-f42f-4623-952b-ca7f2600bded
+    delete:
+      tags:
+        - Groups
+      summary: Delete a group
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: No Content
+  /v1/accounts/{account}/policies:
+    get:
+      tags:
+        - Policies
+      summary: List all policies
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+              number:
+                type: integer
+                minimum: 1
+                maximum: 100
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+    post:
+      tags:
+        - Policies
+      summary: Create a policy
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/CreatePolicyRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+  /v1/accounts/{account}/policies/{policyId}:
+    get:
+      tags:
+        - Policies
+      summary: Retrieve a policy
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - Policies
+      summary: Update a policy
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PatchPolicyRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Policies
+      summary: Delete a policy
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/policies/{policyId}/pool:
+    delete:
+      tags:
+        - Policies
+      summary: Delete a policy's pool
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolResponse'
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/policies/{policyId}/entitlements:
+    get:
+      tags:
+        - Policies
+      summary: List entitlements
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementsResponse'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - Policies
+      summary: Attach entitlements
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementsResponse'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Policies
+      summary: Delete entitlements for a policy
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses:
+    get:
+      tags:
+        - Licenses
+      summary: List all licenses
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          description: Maximum number of licenses to return
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+              number:
+                type: integer
+                minimum: 1
+                maximum: 100
+        - name: expires
+          in: query
+          description: Object containing in, before, or after filters
+          schema:
+           type: object
+        - name: status
+          in: query
+          description: The status of the license to filter by
+          schema:
+           type: string
+           enum: [ACTIVE, INACTIVE, EXPIRING, EXPIRED, SUSPENDED, BANNED]
+        - name: unassigned
+          in: query
+          description: The user-relationship status of the license to filter by
+          schema:
+            type: boolean
+        - name: product
+          in: query
+          description: The identifier (UUID) of the product to filter by
+          schema:
+            type: string
+            default: ""
+        - name: policy
+          in: query
+          description: The identifier (UUID) of the policy to filter by
+          schema:
+            type: string
+            default: ""
+        - name: user
+          in: query
+          description: The identifier (UUID) or email of the user to filter by
+          schema:
+            type: string
+            default: ""
+        - name: group
+          in: query
+          description: The identifier (UUID) of the group to filter by
+          schema:
+            type: string
+            default: ""
+        - name: machine
+          in: query
+          description: The identifier (UUID) of the machine to filter by
+          schema:
+            type: string
+            default: ""
+        - name: metadata
+          in: query
+          description: The metadata object to filter by
+          schema:
+            type: object
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/License'
+    post:
+      summary: Create a license
+      tags:
+        - Licenses
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/CreateLicenseRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+  /v1/accounts/{account}/licenses/{licenseId}:
+    get:
+      summary: Get details of a specific license
+      tags:
+        - Licenses
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Update attributes of a specific license
+      tags:
+        - Licenses
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseAttributesUpdate'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete a specific license
+      tags:
+        - Licenses
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/actions/suspend:
+    post:
+      summary: Suspend license
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License suspended successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/actions/reinstate:
+    post:
+      summary: Reinstate license
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License reinstated successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/actions/renew:
+    post:
+      summary: Renew license
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License renewed successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/actions/revoke:
+    post:
+      summary: Revoke license
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License revoked successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/actions/reset-usage:
+    post:
+      summary: Reset license
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License reseted successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/licenses/{licenseId}/group:
+    put:
+      summary: License group change
+      tags:
+        - Licenses (Actions)
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: licenseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License reseted successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  type: licenses
+                  links:
+                    self: /v1/accounts/<account>/licenses/b18e3f3a-330c-4d8d-ae2e-014db21fa827
+                  attributes:
+                    # Attributes
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/machines:
+    get:
+      summary: Retrieve a list of machines
+      tags:
+        - Machines
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: fingerprint
+          in: query
+          schema:
+            type: string
+        - name: ip
+          in: query
+          schema:
+            type: string
+        - name: product
+          in: query
+          schema:
+            type: string
+        - name: policy
+          in: query
+          schema:
+            type: string
+        - name: license
+          in: query
+          schema:
+            type: string
+        - name: key
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - name: group
+          in: query
+          schema:
+            type: string
+        - name: metadata
+          in: query
+          schema:
+            type: object
+      responses:
+        '200':
+          description: List of machines retrieved successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  - # Machine data
+                    id: 9c4c90c8-d4d3-4571-9363-4c7b0332a6a4
+                    type: machines
+                    links:
+                      self: /v1/accounts/<account>/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4
+                    attributes:
+                      # Machine attributes
+                  - # More machine data...
+        '404':
+          description: Account not found
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+    post:
+      summary: Activate a new machine
+      tags:
+        - Machines
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [machines]
+                    attributes:
+                      type: object
+                      properties:
+                        fingerprint:
+                          type: string
+                          default: ""
+                        cores:
+                          type: string
+                          default: ""
+                        name:
+                          type: string
+                          default: ""
+                        ip:
+                          type: string
+                          default: ""
+                        hostname:
+                          type: string
+                          default: ""
+                        platform:
+                          type: string
+                          default: ""
+                        metadata:
+                          type: object
+                      required:
+                        - fingerprint
+                    relationships:
+                      type: object
+                      properties:
+                        license:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum: [licenses]
+                                id:
+                                  type: string
+                                  default: ""
+                        group:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum: [groups]
+                                id:
+                                  type: string
+                                  default: ""
+      responses:
+        '201':
+          description: Machine created successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  type: machines
+                  attributes:
+                    fingerprint: "4d:Eq:UV:D3:XZ:tL:WN:Bz:mA:Eg:E6:Mk:YX:dK:NC"
+                    platform: "macOS"
+                    name: "Office MacBook Pro"
+                  relationships:
+                    license:
+                      data:
+                        type: licenses
+                        id: "4097d726-6cc5-4156-8575-3a96387e19b4"
+        '400':
+          description: Bad request
+        '404':
+          description: Account not found
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /v1/accounts/{account}/machines/{machine}:
+    get:
+      summary: Get details of a machine
+      tags:
+        - Machines
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: machine
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Machine details retrieved successfully
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  # Machine data...
+        '404':
+          description: Machine not found
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Update machine attributes
+      tags:
+        - Machines
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: machine
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [machines]
+                    attributes:
+                      type: object
+                      properties:
+                        cores:
+                          type: string
+                          default: ""
+                        name:
+                          type: string
+                          default: ""
+                        ip:
+                          type: string
+                          default: ""
+                        hostname:
+                          type: string
+                          default: ""
+                        platform:
+                          type: string
+                          default: ""
+                        metadata:
+                          type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              example:
+                data:
+                  id: 9c4c90c8-d4d3-4571-9363-4c7b0332a6a4
+                  type: machines
+                  attributes:
+                    fingerprint: 4d:Eq:UV:D3:XZ:tL:WN:Bz:mA:Eg:E6:Mk:YX:dK:NC
+                    cores: 16
+                    ip: 192.168.1.1
+                    hostname: null
+                    platform: macOS
+                    name: Office MacBook Pro
+                    maxProcesses: null
+                    requireHeartbeat: false
+                    heartbeatStatus: NOT_STARTED
+                    heartbeatDuration: 600
+                    lastHeartbeat: null
+                    nextHeartbeat: null
+                    lastCheckOut: null
+                    metadata: {}
+                    created: '2017-01-02T20:26:53.464Z'
+                    updated: '2017-01-02T20:26:53.464Z'
+                  relationships:
+                    account:
+                      links:
+                        related: /v1/accounts/{account}
+                      data:
+                        type: accounts
+                        id: {account}
+                    product:
+                      links:
+                        related: /v1/accounts/{account}/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4/product
+                      data:
+                        type: products
+                        id: 22b78db6-6a2e-4a7f-9369-157976148c4c
+                    license:
+                      links:
+                        related: /v1/accounts/{account}/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4/license
+                      data:
+                        type: licenses
+                        id: 4097d726-6cc5-4156-8575-3a96387e19b4
+                    group:
+                      links:
+                        related: /v1/accounts/{account}/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4/group
+                      data: null
+                    user:
+                      links:
+                        related: /v1/accounts/{account}/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4/user
+                      data:
+                        type: users
+                        id: 15ad7012-b570-48b7-88c1-fbab68be9d05
+                    processes:
+                      links:
+                        related: /v1/accounts/{account}/machines/9c4c90c8-d4d3-4571-9363-4c7b0332a6a4/processes
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete a machine
+      tags:
+        - Machines
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: machine
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+      security:
+        - BearerAuth: []
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    EntitlementsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entitlement'
+    Entitlement:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [policy-entitlements]
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+        attributes:
+          $ref: '#/components/schemas/EntitlementAttributes'
+        relationships:
+          $ref: '#/components/schemas/EntitlementRelationships'
+    EntitlementAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+    EntitlementRelationships:
+      type: object
+      properties:
+        account:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [accounts]
+                id:
+                  type: string
+    PoliciesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Policy'
+    CreatePolicyRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [policies]
+            attributes:
+              $ref: '#/components/schemas/PolicyAttributes'
+            relationships:
+              $ref: '#/components/schemas/PolicyRelationships'
+    PatchPolicyRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [policies]
+            attributes:
+              $ref: '#/components/schemas/PolicyAttributes'
+    PoolResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Pool'
+    Pool:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+        attributes:
+          $ref: '#/components/schemas/PoolAttributes'
+        relationships:
+          $ref: '#/components/schemas/PoolRelationships'
+    PoolAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+    PoolRelationships:
+      type: object
+      properties:
+        account:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [accounts]
+                id:
+                  type: string
+        product:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [products]
+                id:
+                  type: string
+        policy:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [policies]
+                id:
+                  type: string
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [policies]
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+        attributes:
+          $ref: '#/components/schemas/PolicyAttributes'
+        relationships:
+          $ref: '#/components/schemas/PolicyRelationships'
+    PolicyAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+          default: ""
+        duration:
+          type: integer
+          default: 31536000
+        strict:
+          type: boolean
+          default: true
+        floating:
+          type: boolean
+          default: false
+        scheme:
+          type: string
+          default: null
+        requireProductScope:
+          type: boolean
+          default: false
+        requirePolicyScope:
+          type: boolean
+          default: false
+        requireMachineScope:
+          type: boolean
+          default: false
+        requireFingerprintScope:
+          type: boolean
+          default: true
+        requireUserScope:
+          type: boolean
+          default: false
+        requireCheckIn:
+          type: boolean
+          default: false
+        checkInInterval:
+          type: string
+          enum: [day, week, month, year]
+        checkInIntervalCount:
+          type: integer
+        usePool:
+          type: boolean
+          default: false
+        maxMachines:
+          type: integer
+          default: 1
+        maxProcesses:
+          type: integer
+          default: 0
+        maxCores:
+          type: integer
+          default: 0
+        maxUses:
+          type: integer
+          default: 1
+        protected:
+          type: boolean
+          default: true
+        requireHeartbeat:
+          type: boolean
+          default: false
+        heartbeatDuration:
+          type: integer
+          default: 60
+          minimum: 60
+        heartbeatCullStrategy:
+          type: string
+          enum: [DEACTIVATE_DEAD, KEEP_DEAD]
+        heartbeatResurrectionStrategy:
+          type: string
+          enum: [NO_REVIVE, 1_MINUTE_REVIVE, 2_MINUTE_REVIVE, 5_MINUTE_REVIVE, 10_MINUTE_REVIVE, 15_MINUTE_REVIVE, ALWAYS_REVIVE]
+        heartbeatBasis:
+          type: string
+          enum: [FROM_CREATION, FROM_FIRST_PING]
+        fingerprintUniquenessStrategy:
+          type: string
+          enum: [UNIQUE_PER_ACCOUNT, UNIQUE_PER_PRODUCT, UNIQUE_PER_POLICY, UNIQUE_PER_LICENSE]
+        fingerprintMatchingStrategy:
+          type: string
+          enum: [MATCH_ANY, MATCH_MOST, MATCH_ALL]
+        expirationStrategy:
+          type: string
+          enum: [RESTRICT_ACCESS, REVOKE_ACCESS, MAINTAIN_ACCESS, ALLOW_ACCESS]
+        expirationBasis:
+          type: string
+          enum: [FROM_CREATION, FROM_FIRST_VALIDATION, FROM_FIRST_ACTIVATION, FROM_FIRST_DOWNLOAD, FROM_FIRST_USE]
+        transferStrategy:
+          type: string
+          enum: [RESET_EXPIRY, KEEP_EXPIRY]
+        authenticationStrategy:
+          type: string
+          enum: [TOKEN, LICENSE, MIXED, NONE]
+        leasingStrategy:
+          type: string
+          enum: [PER_MACHINE, PER_LICENSE]
+        overageStrategy:
+          type: string
+          enum: [NO_OVERAGE, ALWAYS_ALLOW_OVERAGE, ALLOW_1_25X_OVERAGE, ALLOW_1_5X_OVERAGE, ALLOW_2X_OVERAGE]
+        metadata:
+          type: object
+    PolicyRelationships:
+      type: object
+      properties:
+        product:
+          type: object
+          properties:
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [products]
+                id:
+                  type: string
+                  default: ""
+    PolicyResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Policy'
+    CreateLicenseRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [licenses]
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                  default: ""
+                key:
+                  type: string
+                  default: ""
+                expiry:
+                  type: string
+                  format: date
+                maxMachines:
+                  type: integer
+                  default: null
+                maxProcesses:
+                  type: integer
+                  default: null
+                maxCores:
+                  type: integer
+                  default: null
+                maxUses:
+                  type: integer
+                  default: null
+                protected:
+                  type: boolean
+                  default: true
+                suspended:
+                  type: boolean
+                  default: false
+                metadata:
+                  type: object
+            relationships:
+              type: object
+              properties:
+                policy:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [policies]
+                        id:
+                          type: string
+                          default: ""
+                group:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [groups]
+                        id:
+                          type: string
+                          default: ""
+                user:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [users]
+                        id:
+                          type: string
+                          default: ""
+    License:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+        attributes:
+          $ref: '#/components/schemas/LicenseAttributes'
+        relationships:
+          $ref: '#/components/schemas/LicenseRelationships'
+    LicenseAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+        key:
+          type: string
+        expiry:
+          type: string
+          format: date-time
+        status:
+          type: string
+        uses:
+          type: integer
+        protected:
+          type: boolean
+        version:
+          type: string
+        suspended:
+          type: boolean
+        scheme:
+          type: string
+        encrypted:
+          type: boolean
+        floating:
+          type: boolean
+        strict:
+          type: boolean
+        maxMachines:
+          type: integer
+        maxProcesses:
+          type: integer
+        maxCores:
+          type: integer
+        maxUses:
+          type: integer
+        requireHeartbeat:
+          type: boolean
+        requireCheckIn:
+          type: boolean
+        lastValidated:
+          type: string
+          format: date-time
+        lastCheckOut:
+          type: string
+          format: date-time
+        lastCheckIn:
+          type: string
+          format: date-time
+        nextCheckIn:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+    LicenseRelationships:
+      type: object
+      properties:
+        account:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [accounts]
+                id:
+                  type: string
+        product:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [products]
+                id:
+                  type: string
+        policy:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [policies]
+                id:
+                  type: string
+        group:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [groups]
+                id:
+                  type: string
+        user:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            data:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [users]
+                id:
+                  type: string
+        machines:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+            meta:
+              type: object
+              properties:
+                count:
+                  type: integer
+        tokens:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+        entitlements:
+          type: object
+          properties:
+            links:
+              type: object
+              properties:
+                related:
+                  type: string
+    LicenseAttributesUpdate:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [licenses]
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                  default: ""
+                expiry:
+                  type: string
+                  format: date
+                maxMachines:
+                  type: integer
+                  default: null
+                maxProcesses:
+                  type: integer
+                  default: null
+                maxCores:
+                  type: integer
+                  default: null
+                maxUses:
+                  type: integer
+                  default: null
+                protected:
+                  type: boolean
+                  default: true
+                suspended:
+                  type: boolean
+                  default: false
+                metadata:
+                  type: object
